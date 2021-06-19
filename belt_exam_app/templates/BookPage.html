@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/BookPage.css' %}">
+</head>
+
+<body>
+    <div id="wrapper">
+        <ul class="messages">    
+            {% for message in messages %}    
+                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>    
+            {% endfor %}
+        </ul>
+        <h3 id="welcomeword">Welcome, {{ create_user.first_name }}!</h3>
+        <div id="edit">
+            <a href = "/myaccount/{{ create_user.id }}" id = "editPage">Edit My Account</a>
+        
+            <div id="LogoutBox">
+                <form action ="/logoutUser" method="POST">
+                    {% csrf_token %}
+                    <input type="submit" value="Logout">
+                </form>
+            </div>
+        </div>
+        <br>
+        <div id="topThreeBox">
+            <h4>Recent Quotes:</h4>
+            <br>
+            {% for top_quotes in three_quotes %}
+                <h4>{{ top_quotes.author.name }}:</h4>
+                        <p>"{{ top_quotes.quote }}"</p>
+                        <p>Posted by: <a href="/users/{{ top_quotes.uploaded_by.id }}">{{ top_quotes.uploaded_by.first_name }} {{ top_quotes.uploaded_by.last_name }}</a></p>
+                        <p> {{ top_quotes.my_likes.all|length }} people like this</p><br> 
+                        <form action="/addlikes" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="id" value="{{top_quotes.id}}">
+                            <input type="submit" value="Like">
+                        </form>
+                        {% if create_user.id == top_quotes.uploaded_by.id %}
+                            <a href="/delete/post/{{top_quotes.id}}">Delete Quote</a>
+                        {% endif %}
+            {% endfor %}
+        </div>
+        <div id="otherReviewBox">
+            <h4 id="OtherBook">Other Quotes: </h4>
+                <div id="BookSelectBox">
+                    {% for all_other_quotes in these_quotes %} 
+                    <p> {{ all_other_quotes.author.name }}: {{all_other_quotes.quote}} </p></br>
+                    {% endfor %}
+                </div>
+        </div>
+            <form action="/quotes/create" method="POST">
+                {% csrf_token %}
+                <h4>Add a Quote!</h4>
+                <h4>Author: </h4>
+                <input type="text" name="get_Author">
+                <h4>Quote: </h4>
+                <textarea id="input_quotes" rows= "10" cols="40" type="text" name="quote_add"></textarea>
+                <input type="submit" value = "Submit">
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>
